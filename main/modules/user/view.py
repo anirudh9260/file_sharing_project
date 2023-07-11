@@ -60,9 +60,22 @@ class Profiles2(Resource):
         data = get_data_from_request_or_raise_validation_error(UpdateProfile, request.json)
         UserController.update_user_profile(data, user_id)
         return jsonify(msg="success")
+    
+
+class Users(Resource):
+    method_decorators = [jwt_required(verify_type=False)]
+
+    def get(self):
+        """
+        This view function is used to get list of all users.
+        :return:
+        """
+        response = UserController.get_all_users()
+        return jsonify(response)
 
 
 user_namespace = Namespace("users", description="User Operations")
 user_namespace.add_resource(Profile, "/profile")
 user_namespace.add_resource(Profiles, "/profiles")
 user_namespace.add_resource(Profiles2, "/profiles/<int:user_id>")
+user_namespace.add_resource(Users, "")
