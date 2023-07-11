@@ -83,7 +83,7 @@ class AuthUserController:
 
         if check_password_hash(auth_user.password, login_data["password"]):
             return JWTController.get_access_and_refresh_token(auth_user), ""
-        return token, "wrong password"
+        return token, "Wrong Password"
 
     @classmethod
     def logout(cls):
@@ -95,6 +95,7 @@ class AuthUserController:
         blocked_token = JWTController.block_jwt_token()
         return {"msg": f"{blocked_token.type.capitalize()} token successfully revoked"}
 
+
     @classmethod
     def refresh_access_token(cls) -> dict:
         """
@@ -102,3 +103,6 @@ class AuthUserController:
         :return:
         """
         return JWTController.get_access_token_from_refresh_token()
+    
+
+
