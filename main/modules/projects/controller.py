@@ -1,4 +1,4 @@
-from main.custom_exceptions import EntityNotFoundError, UnauthorizedUserError
+from main.custom_exceptions import EntityNotFoundError, UnauthorizedUserError, EntityAlreadyExistsError
 from main.modules.projects.model import Projects, ProjectAccess
 from main.modules.auth.controller import AuthUserController
 from main.modules.auth.model import AuthUser
@@ -16,6 +16,8 @@ class ProjectsController:
         :param project_data:
         :return int:
         """
+        if cls.get_project_by_project_name(project_data.get("project_name")):
+            raise EntityAlreadyExistsError("A project with similar name already exists. Please specify a different name")
         project = Projects.create(project_data)
         return project.id
 
@@ -49,6 +51,17 @@ class ProjectsController:
         project = Projects.query.filter_by(id=project_id).first()
         cls.required_checks(auth_user, project)
         return project.serialize()
+    
+    @classmethod
+    def get_project_by_project_name(cls, project_name: str) -> dict:
+        """
+        This function is used to get an project by project_name.
+        :param project_id:
+        :param auth_user:
+        :return dict:
+        """
+        projects = Projects.query.filter_by(project_name=project_name)
+        return [project.serialize() for project in projects]
 
     @classmethod
     def update_project(cls, project_id: int, updated_project: dict, auth_user: AuthUser) -> dict:
