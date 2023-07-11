@@ -21,15 +21,9 @@ class Projects(BaseModel):
         return dict_data
 
 
-
 class ProjectAccess(BaseModel):
     """
-    Model to Manage Project Permissions
+    Model to Assign Project to users
     """
-    project_id = db.Column(db.ForeignKey("auth_user.id"))
-    user_id = db.Column(db.ForeignKey("auth_user.id"))
-    permission_id = db.Column(db.ForeignKey("auth_user.id"))
-
-
-#1) API to list down all email -ids - 
-
+    project_id = db.Column(db.ForeignKey("projects.id"))
+    email = db.Column(db.ForeignKey("auth_user.email"))
