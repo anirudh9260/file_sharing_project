@@ -1,5 +1,5 @@
 from main.custom_exceptions import EntityNotFoundError, UnauthorizedUserError
-from main.modules.projects.model import Projects
+from main.modules.projects.model import Projects, ProjectAccess
 from main.modules.auth.controller import AuthUserController
 from main.modules.auth.model import AuthUser
 
@@ -29,9 +29,14 @@ class ProjectsController:
         """
         if auth_user.role == AuthUserController.ROLES.ADMIN.value:
             projects = Projects.query.all()
+            return [project.serialize() for project in projects]
         else:
             projects = Projects.query.filter_by(user_id=auth_user.id)
-        return [project.serialize() for project in projects]
+            assigned_projects = ProjectAccess.query.filter_by(email = auth_user.email)
+            assigned_project_ids = [project.project_id for project in assigned_projects]
+            assigned_projects = Projects.query.filter(Projects.id.in_(assigned_project_ids)).all()
+        return [project.serialize() for project in projects] + [project.serialize() for project in assigned_projects]
+    
 
     @classmethod
     def get_project_by_project_id(cls, project_id: int, auth_user: AuthUser) -> dict:
