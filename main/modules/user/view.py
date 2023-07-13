@@ -70,7 +70,7 @@ class Users(Resource):
         This view function is used to get list of all users.
         :return:
         """
-        response = UserController.get_all_users()
+        response = UserController.get_all_users()   
         return jsonify(response)
 
 
@@ -78,4 +78,4 @@ user_namespace = Namespace("users", description="User Operations")
 user_namespace.add_resource(Profile, "/profile")
 user_namespace.add_resource(Profiles, "/profiles")
 user_namespace.add_resource(Profiles2, "/profiles/<int:user_id>")
-user_namespace.add_resource(Users, "")
+user_namespace.add_resource(Users, "/emails")
