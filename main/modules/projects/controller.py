@@ -1,6 +1,7 @@
 from main.custom_exceptions import EntityNotFoundError, UnauthorizedUserError, EntityAlreadyExistsError
 from main.modules.projects.model import Projects, ProjectAccess
 from main.modules.auth.controller import AuthUserController
+from main.modules.user.controller import UserController
 from main.modules.auth.model import AuthUser
 
 
@@ -20,6 +21,7 @@ class ProjectsController:
             raise EntityAlreadyExistsError("A project with similar name already exists. Please specify a different name")
         project = Projects.create(project_data)
         return project.id
+
 
     @classmethod
     def get_projects(cls, auth_user: AuthUser) -> list[dict]:
@@ -52,6 +54,7 @@ class ProjectsController:
         cls.required_checks(auth_user, project)
         return project.serialize()
     
+
     @classmethod
     def get_project_by_project_name(cls, project_name: str) -> dict:
         """
@@ -62,6 +65,7 @@ class ProjectsController:
         """
         projects = Projects.query.filter_by(project_name=project_name)
         return [project.serialize() for project in projects]
+    
 
     @classmethod
     def update_project(cls, project_id: int, updated_project: dict, auth_user: AuthUser) -> dict:
@@ -77,6 +81,7 @@ class ProjectsController:
         project.update(updated_project)
         return {"msg": "success"}
 
+
     @classmethod
     def delete_project(cls, project_id, auth_user):
         """
@@ -89,6 +94,38 @@ class ProjectsController:
         cls.required_checks(auth_user, project)
         Projects.delete(id=project_id)
         return {"msg": "success"}
+    
+
+    @classmethod
+    def get_users_by_project_id(cls, project_id: int):
+        """
+        This function is used to get users with access to project.
+        :param project_id:
+        :param auth_user:
+        :return dict:
+        """
+        users = ProjectAccess.query.filter_by(project_id=project_id)
+        return [user.serialize() for user in users]
+
+
+    @classmethod
+    def add_user_access(cls, data):
+        if data.get("email") not in UserController.get_all_users():
+            raise EntityNotFoundError("User not found.")
+        users = cls.get_users_by_project_id(data.get("project_id"))
+        emails = [user.get("email") for user in users]
+        if data.get("email") in emails:
+            raise EntityAlreadyExistsError("User already has access to project.")
+        access = ProjectAccess.create(data)
+        return access.id
+    
+
+    @classmethod
+    def remove_user_access(cls, data):
+        ProjectAccess.delete(id=data.get('access_id'))
+        return {"message": "Success"}
+
+
 
     @classmethod
     def required_checks(cls, auth_user: AuthUser, project: Projects):
