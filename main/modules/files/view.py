@@ -45,9 +45,6 @@ class FilesUploadAPI(Resource):
         :return:
         """
         auth_user = AuthUserController.get_current_auth_user()
-
-        
-
         file = request.files.get('file')
         project_id = request.form.get('project_id')
         if file and project_id:
