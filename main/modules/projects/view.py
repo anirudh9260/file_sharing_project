@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required
 from flask_restx import Namespace, Resource
 
 from main.modules.projects.controller import ProjectsController
-from main.modules.projects.schema_validator import AddProjectSchema, UpdateProjectSchema
+from main.modules.projects.schema_validator import AddProjectSchema, UpdateProjectSchema,AddUserAccessSchema, RemoveUserAccessSchema
 from main.modules.auth.controller import AuthUserController
 from main.utils import get_data_from_request_or_raise_validation_error
 
@@ -74,6 +74,51 @@ class ProjectDetailApi(Resource):
         return jsonify(response)
 
 
+class ProjectAccessApi(Resource):
+    method_decorators = [jwt_required()]
+
+    @staticmethod
+    def get(project_id: int):
+        """
+        This function is used to get the particular project by project_id
+        :param project_id:
+        :return:
+        """
+        auth_user = AuthUserController.get_current_auth_user()
+        response = ProjectsController.get_users_by_project_id(project_id)
+        return jsonify(response)
+    
+
+    @staticmethod
+    def post(project_id: int):
+        """
+        This function is used to add new user to the Project Access.
+        :return:
+        """
+        auth_user = AuthUserController.get_current_auth_user()
+        data = get_data_from_request_or_raise_validation_error(AddUserAccessSchema, request.json)
+        data.update({"project_id": project_id})
+        access_id = ProjectsController.add_user_access(data)
+        response = make_response(
+            jsonify({"message": "User Access added", "access_id": access_id}), 201
+        )
+        return response
+    
+    
+    @staticmethod
+    def delete(project_id: int):
+        """
+        This function is used to remove a user from Project Access.
+        :param project_id:
+        :return:
+        """
+        auth_user = AuthUserController.get_current_auth_user()
+        data = get_data_from_request_or_raise_validation_error(RemoveUserAccessSchema, request.json)
+        response = ProjectsController.remove_user_access(data)
+        return jsonify(response)
+
+
 project_namespace = Namespace("projects", description="Projects Operations")
 project_namespace.add_resource(ProjectListApi, "")
 project_namespace.add_resource(ProjectDetailApi, "/<int:project_id>")
+project_namespace.add_resource(ProjectAccessApi, "/<int:project_id>/access")
