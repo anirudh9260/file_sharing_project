@@ -56,7 +56,8 @@ class JWTController:
         """
         identity = {
                     "user_id": auth_user.id,
-                    "role": auth_user.role
+                    "role": auth_user.role,
+                    "username": auth_user.username,
                     }
         return {
             "access_token": create_access_token(identity=identity),
