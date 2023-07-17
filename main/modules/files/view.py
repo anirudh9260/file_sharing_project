@@ -5,7 +5,7 @@ from flask_restx import Namespace, Resource
 from main.modules.files.controller import FilesController
 from main.modules.projects.controller import ProjectsController
 
-from main.modules.files.schema_validator import AddFileSchema, AddFileNameSchema, UpdateFileSchema, FileConversionSchema
+from main.modules.files.schema_validator import AddFileSchema, AddFileNameSchema, UpdateFileSchema, FileConversionSchema, DeleteFilesSchema
 from main.modules.auth.controller import AuthUserController
 from main.utils import get_data_from_request_or_raise_validation_error, generate_uuid
 from main.custom_exceptions import EntityAlreadyExistsError, CustomValidationError
@@ -66,6 +66,19 @@ class FilesUploadAPI(Resource):
             response = make_response(jsonify({"message": "File added", "id": file_id}), 201)
             return response
         raise  CustomValidationError("File and project_id both are required parameters.")
+    
+
+    def delete(self):
+        """
+        This function is used to delete the file by file_id.
+        :param file_id:
+        :return:
+        """
+        auth_user = AuthUserController.get_current_auth_user()
+        get_data_from_request_or_raise_validation_error(DeleteFilesSchema, request.json)
+        file_list = DeleteFilesSchema().load(request.json)
+        response = FilesController.delete_files(file_list, auth_user)
+        return jsonify(response)
 
 
 

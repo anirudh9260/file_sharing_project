@@ -123,6 +123,7 @@ class FilesController:
         cls.required_checks(auth_user, file)
         file.update(updated_file)
         return {"msg": "success"}
+    
 
     @classmethod
     def delete_file(cls, file_id, auth_user):
@@ -137,6 +138,24 @@ class FilesController:
         if os.path.exists(file.file_location):
             os.remove(file.file_location)
         Files.delete(id=file_id)
+        return {"msg": "success"}
+    
+    
+    @classmethod
+    def delete_files(cls, file_list, auth_user):
+        """
+        This function is used to delete multiple files by file_id_list.
+        :param file_list:
+        :param auth_user:
+        :return dict:
+        """
+
+        files = Files.query.filter(Files.id.in_(file_list["file_ids"])).all()
+        for file in files:
+            if os.path.exists(file.file_location):
+                # cls.required_checks(auth_user, file)
+                os.remove(file.file_location)
+            Files.delete(id=file.id)
         return {"msg": "success"}
     
     @classmethod
