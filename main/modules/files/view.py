@@ -75,8 +75,8 @@ class FilesUploadAPI(Resource):
         :return:
         """
         auth_user = AuthUserController.get_current_auth_user()
-        get_data_from_request_or_raise_validation_error(DeleteFilesSchema, request.json)
-        file_list = DeleteFilesSchema().load(request.json)
+        file_list = get_data_from_request_or_raise_validation_error(DeleteFilesSchema, request.json)
+        # file_list = DeleteFilesSchema().load(request.json)
         response = FilesController.delete_files(file_list, auth_user)
         return jsonify(response)
 
