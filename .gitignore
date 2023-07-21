@@ -4,7 +4,7 @@ source venv# Default ignored files
 */venv/*
 /logs/
 /instance/
-/migrations/
+# /migrations/
 *.pyc
 *.log
 *.coverage
