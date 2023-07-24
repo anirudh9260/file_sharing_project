@@ -42,6 +42,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
     SECRET_KEY = os.environ.get("SECRET_KEY")
     JWT_SECRET_KEY = os.environ.get("SECRET_KEY")
+    SERVER_PATH = os.environ.get("SERVER_PATH")
     JWT_ACCESS_TOKEN_EXPIRES = config.get("JWT_ACCESS_TOKEN_EXPIRES")
     JWT_REFRESH_TOKEN_EXPIRES = config.get("JWT_REFRESH_TOKEN_EXPIRES")
     PROPAGATE_EXCEPTIONS = config.get("PROPAGATE_EXCEPTIONS")

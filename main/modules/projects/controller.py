@@ -51,7 +51,7 @@ class ProjectsController:
         :return dict:
         """
         project = Projects.query.filter_by(id=project_id).first()
-        cls.required_checks(auth_user, project)
+        # cls.required_checks(auth_user, project)
         return project.serialize()
     
 
