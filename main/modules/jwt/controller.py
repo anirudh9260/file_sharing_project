@@ -62,7 +62,7 @@ class JWTController:
         return {
             "access_token": create_access_token(identity=identity),
             "refresh_token": create_refresh_token(identity=identity),
-            "expiry": int(config_by_name[env].JWT_ACCESS_TOKEN_EXPIRES.total_seconds()),
+            "expiry": int(config_by_name[env]["JWT_ACCESS_TOKEN_EXPIRES"].total_seconds()),
             "token_type": "bearer"
         }
 
