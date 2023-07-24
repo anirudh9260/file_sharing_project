@@ -1,11 +1,12 @@
 import os
 from datetime import datetime
+from main.db import db
 from main.custom_exceptions import EntityNotFoundError, UnauthorizedUserError, EntityAlreadyExistsError
 from main.modules.files.model import Files
 from main.modules.auth.controller import AuthUserController
 from main.modules.auth.model import AuthUser
 from flask import current_app, make_response, jsonify
-from main.utils import generate_uuid
+from main.utils import generate_uuid, get_query_including_filters
 from main.modules.files.converter import FileConversion
 
 
@@ -149,14 +150,17 @@ class FilesController:
         :param auth_user:
         :return dict:
         """
-
-        files = Files.query.filter(Files.id.in_(file_list["file_ids"])).all()
-        for file in files:
+        
+        files = get_query_including_filters(db, Files, {"op_in": {"id": file_list["file_ids"]}})
+        
+        # files = Files.query.filter(Files.id.in_(file_list["file_ids"])).all()
+        for file in files.all():
             if os.path.exists(file.file_location):
                 # cls.required_checks(auth_user, file)
                 os.remove(file.file_location)
             Files.delete(id=file.id)
         return {"msg": "success"}
+    
     
     @classmethod
     def add_converted_file(cls, data, auth_user):

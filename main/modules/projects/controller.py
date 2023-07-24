@@ -1,3 +1,5 @@
+from main.db import db
+from main.utils import get_query_including_filters
 from main.custom_exceptions import EntityNotFoundError, UnauthorizedUserError, EntityAlreadyExistsError
 from main.modules.projects.model import Projects, ProjectAccess
 from main.modules.auth.controller import AuthUserController
@@ -38,9 +40,10 @@ class ProjectsController:
             projects = Projects.query.filter_by(user_id=auth_user.id)
             assigned_projects = ProjectAccess.query.filter_by(email = auth_user.email)
             assigned_project_ids = [project.project_id for project in assigned_projects]
-            assigned_projects = Projects.query.filter(Projects.id.in_(assigned_project_ids)).all()
+            assigned_projects = get_query_including_filters(db, Projects, {"op_in": {"id": assigned_project_ids}})
+            # assigned_projects = Projects.query.filter(Projects.id.in_(assigned_project_ids)).all()
         return [project.serialize() for project in projects] + [project.serialize() for project in assigned_projects]
-    
+
 
     @classmethod
     def get_project_by_project_id(cls, project_id: int, auth_user: AuthUser) -> dict:
