@@ -2,9 +2,15 @@ import os
 from datetime import timedelta
 
 import yaml
+from dotenv import load_dotenv
 from yaml.loader import Loader
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+
+dotenv_path = os.path.join(os.path.dirname(basedir), ".env")
+load_dotenv(dotenv_path)
+
 env = os.getenv("FLASK_ENV") or "dev"
 
 
@@ -25,48 +31,44 @@ yaml.add_constructor("!timedelta", construct_timedelta)  # handle timedelta in y
 with open(os.path.join(basedir, env + ".yaml")) as config_file:
     config = yaml.load(config_file, Loader=Loader)
 
-with open(os.path.join(basedir, "test.yaml")) as test_config_file:
-    test_config = yaml.load(test_config_file, Loader=Loader)
 
-with open(os.path.join(basedir, "prod.yaml")) as prod_config_file:
-    prod_config = yaml.load(prod_config_file, Loader=Loader)
+def serialize(cls):
+    return {
+        attr: getattr(cls, attr) for attr in dir(cls) if not callable(getattr(cls, attr)) and not attr.startswith("__")
+    }
 
 
-class DevelopmentConfig:
-    SQLALCHEMY_DATABASE_URI = config.get("SQLALCHEMY_DATABASE_URI")
-    JWT_SECRET_KEY = config.get("JWT_SECRET_KEY")
+class Config:
+    SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URL")
+    SECRET_KEY = os.environ.get("SECRET_KEY")
+    JWT_SECRET_KEY = os.environ.get("SECRET_KEY")
     JWT_ACCESS_TOKEN_EXPIRES = config.get("JWT_ACCESS_TOKEN_EXPIRES")
     JWT_REFRESH_TOKEN_EXPIRES = config.get("JWT_REFRESH_TOKEN_EXPIRES")
-    SECRET_KEY = config.get("SECRET_KEY")
     PROPAGATE_EXCEPTIONS = config.get("PROPAGATE_EXCEPTIONS")
-    SERVER_PATH = config.get("SERVER_PATH")
+
+
+class DevConfig(Config):
     DEBUG = True
 
 
-class TestingConfig:
-    SQLALCHEMY_DATABASE_URI = test_config.get("SQLALCHEMY_DATABASE_URI")
-    JWT_SECRET_KEY = test_config.get("JWT_SECRET_KEY")
-    JWT_ACCESS_TOKEN_EXPIRES = test_config.get("JWT_ACCESS_TOKEN_EXPIRES")
-    JWT_REFRESH_TOKEN_EXPIRES = test_config.get("JWT_REFRESH_TOKEN_EXPIRES")
-    SECRET_KEY = test_config.get("SECRET_KEY")
-    PROPAGATE_EXCEPTIONS = test_config.get("PROPAGATE_EXCEPTIONS")
-    SERVER_PATH = config.get("SERVER_PATH")
-    DEBUG = True
-    
-
-class ProductionConfig():
-    SQLALCHEMY_DATABASE_URI = prod_config.get("SQLALCHEMY_DATABASE_URI")
-    JWT_SECRET_KEY = prod_config.get("JWT_SECRET_KEY")
-    JWT_ACCESS_TOKEN_EXPIRES = prod_config.get("JWT_ACCESS_TOKEN_EXPIRES")
-    JWT_REFRESH_TOKEN_EXPIRES = prod_config.get("JWT_REFRESH_TOKEN_EXPIRES")
-    SECRET_KEY = prod_config.get("SECRET_KEY")
-    PROPAGATE_EXCEPTIONS = prod_config.get("PROPAGATE_EXCEPTIONS")
-    SERVER_PATH = config.get("SERVER_PATH")
+class ProdConfig(Config):
     DEBUG = False
 
 
+class TestConfig(Config):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = os.environ.get("TESTING_DATABASE_URL")
+
+
+class CacheConfig:
+    CACHE_TYPE = "redis"
+    CACHE_REDIS_HOST = os.environ.get("CACHE_REDIS_HOST") or "localhost"
+    CACHE_REDIS_PORT = os.environ.get("CACHE_REDIS_PORT") or 6379
+    CACHE_REDIS_DB = os.environ.get("CACHE_REDIS_DB") or 0
+    CACHE_DEFAULT_TIMEOUT = config.get("CACHE_DEFAULT_TIMEOUT")
 
 
 
-config_by_name = dict(dev=DevelopmentConfig, test=TestingConfig, prod=ProductionConfig)
-print(config_by_name)
+config_by_name = dict(
+    dev=serialize(DevConfig), test=serialize(TestConfig), prod=serialize(ProdConfig), cache=serialize(CacheConfig)
+)

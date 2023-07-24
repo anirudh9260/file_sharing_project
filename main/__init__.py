@@ -14,11 +14,16 @@ from main.modules import api, jwt
 from main.utils import log_user_access
 
 
-def get_app(env=None):
+def get_app(env=None, config=None):
     app = Flask(__name__)
-    if not env:
-        env = os.environ.get("FLASK_ENV", "dev")
-    app.config.from_object(config_by_name[env])
+
+    if not config:
+        if not env:
+            env = os.environ.get("FLASK_ENV", "dev")
+        config = config_by_name[env]
+
+    # app.config.from_object(config_by_name[env])
+    app.config.update(config)
     CORS(app)
     api.init_app(app)
     db.init_app(app)
