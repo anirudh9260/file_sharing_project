@@ -43,7 +43,7 @@ class AuthUserController:
         user_by_username = AuthUser.query.filter_by(username=user_data["username"]).first()
         if user_by_email or user_by_username:
             param = "username" if user_by_username else "email"
-            error_data["error"] = f"user already exists with provided {param}"
+            error_data["error"] = f"User already exists with provided {param}"
         else:
             user_data["password"] = generate_password_hash(user_data["password"])
             auth_user = AuthUser.create(user_data)
