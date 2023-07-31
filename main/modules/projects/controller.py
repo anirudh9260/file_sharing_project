@@ -1,6 +1,6 @@
 from main.db import db
 from main.utils import get_query_including_filters
-from main.custom_exceptions import EntityNotFoundError, UnauthorizedUserError, EntityAlreadyExistsError
+from main.custom_exceptions import EntityNotFoundError, UnauthorizedUserError, EntityAlreadyExistsError, CustomValidationError
 from main.modules.projects.model import Projects, ProjectAccess
 from main.modules.auth.controller import AuthUserController
 from main.modules.user.controller import UserController
@@ -95,7 +95,10 @@ class ProjectsController:
         """
         project = Projects.query.filter_by(id=project_id).first()
         cls.required_checks(auth_user, project)
-        Projects.delete(id=project_id)
+        try:
+            Projects.delete(id=project_id)
+        except:
+            raise CustomValidationError("Empty Project Files and User Access before Deleting Project")
         return {"msg": "success"}
     
 
