@@ -30,7 +30,7 @@ class ProjectListApi(Resource):
         data.update({"user_id": auth_user.id})
         project_id = ProjectsController.add_project(data)
         response = make_response(
-            jsonify({"message": "Project added", "location": f"/projects/{project_id}", "id": project_id}), 201
+            jsonify({"message": "Project Successfully Added", "id": project_id, "project_name": data["project_name"], "user": auth_user.username}), 201
         )
         response.headers["Location"] = f"/projects/{project_id}"
         return response
