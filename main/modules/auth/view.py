@@ -1,3 +1,4 @@
+import os
 from flask import jsonify, make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restx import Namespace, Resource
@@ -5,7 +6,6 @@ from flask_restx import Namespace, Resource
 from main.modules.auth.controller import AuthUserController
 from main.modules.auth.schema_validator import LogInSchema, SignUpSchema, UpdatePassword
 from main.utils import get_data_from_request_or_raise_validation_error
-
 
 class SignUp(Resource):
     def post(self):
@@ -70,7 +70,8 @@ class Logout(Resource):
         return jsonify(AuthUserController.logout())
 
 
-auth_namespace = Namespace("auth", description="Auth Operations")
+
+auth_namespace = Namespace(f'{os.environ.get("BASE_PATH")}/auth', description="Auth Operations")
 auth_namespace.add_resource(SignUp, "/signup")
 auth_namespace.add_resource(Login, "/login")
 auth_namespace.add_resource(Refresh, "/refresh")

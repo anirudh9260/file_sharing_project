@@ -1,7 +1,7 @@
+import os
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
 from flask_restx import Namespace, Resource
-
 from main.modules.user.controller import UserController
 from main.modules.user.schema_validator import UpdateProfile
 from main.utils import get_data_from_request_or_raise_validation_error
@@ -74,7 +74,7 @@ class Users(Resource):
         return jsonify(response)
 
 
-user_namespace = Namespace("users", description="User Operations")
+user_namespace = Namespace(f'{os.environ.get("BASE_PATH")}/users', description="User Operations")
 user_namespace.add_resource(Profile, "/profile")
 user_namespace.add_resource(Profiles, "/profiles")
 user_namespace.add_resource(Profiles2, "/profiles/<int:user_id>")

@@ -136,7 +136,7 @@ class FilesConversionAPI(Resource):
 
 
 
-file_namespace = Namespace("files", description="File Operations")
+file_namespace = Namespace(f'{os.environ.get("BASE_PATH")}/files', description="File Operations")
 file_namespace.add_resource(GetProjectFilesApi, "/<int:project_id>")
 file_namespace.add_resource(GetConvertedFiles, "/<string:converted_uuid>")
 file_namespace.add_resource(FilesUploadAPI, "")

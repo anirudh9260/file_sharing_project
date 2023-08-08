@@ -1,7 +1,7 @@
+import os
 from flask import jsonify, make_response, request
 from flask_jwt_extended import jwt_required
 from flask_restx import Namespace, Resource
-
 from main.modules.projects.controller import ProjectsController
 from main.modules.projects.schema_validator import AddProjectSchema, UpdateProjectSchema,AddUserAccessSchema, RemoveUserAccessSchema
 from main.modules.auth.controller import AuthUserController
@@ -118,7 +118,7 @@ class ProjectAccessApi(Resource):
         return jsonify(response)
 
 
-project_namespace = Namespace("projects", description="Projects Operations")
+project_namespace = Namespace(f'{os.environ.get("BASE_PATH")}/projects', description="Projects Operations")
 project_namespace.add_resource(ProjectListApi, "")
 project_namespace.add_resource(ProjectDetailApi, "/<int:project_id>")
 project_namespace.add_resource(ProjectAccessApi, "/<int:project_id>/access")
