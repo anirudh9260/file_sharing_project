@@ -109,13 +109,14 @@ def log_user_access(response):
     :param response:
     :return:
     """
+    print("kkk", request.path)
     access_logger.info(
         f"User IP Address: {request.remote_addr} \n"
         f"Method: {request.method}\n"
         f"Path: {request.path}\n"
         f"Headers: {request.headers}"
         f"Request Payload: {request.get_data(as_text=True)}\n"
-        f"Response data: { response.headers['Content-Disposition'] if request.path.startswith('/files') and request.path.count('/') == 3 else response.get_data(as_text=True)}\n"
+        f"Response data: { response.headers['Content-Disposition'] if request.path.startswith('/dmp-api/files') and request.path.count('/') == 4 else response.get_data(as_text=True)}\n"
         f"Status code: {response.status_code}"
     )
     return response
