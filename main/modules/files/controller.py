@@ -70,6 +70,24 @@ class FilesController:
         """
         files = Files.query.filter_by(project_id=project_id)
         return [file.serialize() for file in files]
+    
+
+    @classmethod
+    def search_file_by_project_id(cls, project_id: int, file_name: str) -> dict:
+        """
+        This function is used to get an file by project_id.
+        :param project_id:
+        :param auth_user:
+        :return dict:
+        """
+        print("hello:", file_name)
+        filters_dict = {
+                        "substr": {"file_name": file_name+"%"},
+                        "eq": {"project_id": project_id}
+                        }
+        files = get_query_including_filters(db, Files, filters_dict)
+        # files = Files.query.filter_by(project_id=project_id)
+        return [file.serialize() for file in files]
         
 
     @classmethod
