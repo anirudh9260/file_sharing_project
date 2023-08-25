@@ -109,7 +109,7 @@ def log_user_access(response):
     :param response:
     :return:
     """
-    print("kkk", request.path)
+
     access_logger.info(
         f"User IP Address: {request.remote_addr} \n"
         f"Method: {request.method}\n"
