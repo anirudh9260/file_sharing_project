@@ -23,6 +23,19 @@ class GetProjectFilesApi(Resource):
         return jsonify(response)
     
 
+class SearchProjectFilesApi(Resource):
+    method_decorators = [jwt_required()]
+
+    def get(self, project_id: int, file_name: str):
+        """
+        This function is used to search files in a project.
+        :return:
+        """
+        auth_user = AuthUserController.get_current_auth_user()
+        response = FilesController.search_file_by_project_id(project_id, file_name)
+        return jsonify(response)
+    
+
 class GetConvertedFiles(Resource):
     method_decorators = [jwt_required()]
 
@@ -138,6 +151,7 @@ class FilesConversionAPI(Resource):
 
 file_namespace = Namespace(f'{os.environ.get("BASE_PATH")}/files', description="File Operations")
 file_namespace.add_resource(GetProjectFilesApi, "/<int:project_id>")
+file_namespace.add_resource(SearchProjectFilesApi, "/<int:project_id>/search/<string:file_name>")
 file_namespace.add_resource(GetConvertedFiles, "/<string:converted_uuid>")
 file_namespace.add_resource(FilesUploadAPI, "")
 file_namespace.add_resource(FileOperationAPI, "/<int:file_id>")
